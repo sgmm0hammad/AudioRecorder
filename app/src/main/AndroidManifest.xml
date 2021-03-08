@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-			 package="com.dimowner.audiorecorder">
+	package="com.dimowner.audiorecorder">
 
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -17,18 +17,18 @@
 	<uses-feature android:name="android.hardware.microphone" android:required="true" />
 
 	<application
-			android:allowBackup="false"
-			android:requestLegacyExternalStorage="true"
-			android:hardwareAccelerated="@bool/useHardwareAcceleration"
-			android:name="com.dimowner.audiorecorder.ARApplication"
-			android:icon="@mipmap/audio_recorder_logo"
-			android:roundIcon="@mipmap/audio_recorder_logo"
-			android:label="@string/app_name"
-			android:theme="@style/AppTheme">
+		android:allowBackup="true"
+		android:requestLegacyExternalStorage="true"
+		android:hardwareAccelerated="@bool/useHardwareAcceleration"
+		android:name="com.dimowner.audiorecorder.ARApplication"
+		android:icon="@mipmap/audio_recorder_logo"
+		android:roundIcon="@mipmap/audio_recorder_logo"
+		android:label="@string/app_name"
+		android:theme="@style/AppTheme">
 
 		<activity android:name="com.dimowner.audiorecorder.app.main.MainActivity"
-					 android:launchMode= "singleTask"
-					 android:screenOrientation="portrait">
+			android:launchMode= "singleTask"
+			android:screenOrientation="portrait">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 
@@ -37,21 +37,21 @@
 		</activity>
 
 		<activity android:name="com.dimowner.audiorecorder.app.records.RecordsActivity"
-					 android:screenOrientation="portrait"/>
+			android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.settings.SettingsActivity"
-					 android:screenOrientation="portrait"/>
+			android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.info.ActivityInformation"
-					 android:screenOrientation="portrait"/>
+			android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.lostrecords.LostRecordsActivity"
-				android:screenOrientation="portrait"/>
+			android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.browser.FileBrowserActivity"
-				android:screenOrientation="portrait"/>
+			android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.trash.TrashActivity"
-				android:screenOrientation="portrait"/>
+			android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.welcome.WelcomeActivity"
-				android:screenOrientation="portrait"/>
+			android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.setup.SetupActivity"
-				android:screenOrientation="portrait">
+			android:screenOrientation="portrait">
 		</activity>
 
 		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
@@ -65,15 +65,15 @@
 		<receiver android:name=".app.DecodeService$StopDecodeReceiver" />
 
 		<provider
-				android:name=".AppFileProvider"
-				android:authorities="${applicationId}.app_file_provider"
-				android:exported="false"
-				android:grantUriPermissions="true">
+			android:name=".AppFileProvider"
+			android:authorities="${applicationId}.app_file_provider"
+			android:exported="false"
+			android:grantUriPermissions="true">
 			<meta-data
-					android:name="android.support.FILE_PROVIDER_PATHS"
-					android:resource="@xml/provider_paths"/>
+				android:name="android.support.FILE_PROVIDER_PATHS"
+				android:resource="@xml/provider_paths"/>
 		</provider>
 
-    </application>
+	</application>
 
 </manifest>

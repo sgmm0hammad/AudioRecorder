@@ -5,17 +5,13 @@ apply plugin: 'kotlin-kapt'
 //apply plugin: 'com.google.firebase.crashlytics'
 //apply plugin: 'com.google.gms.google-services'
 
-def versionMajor = 0
-def versionMinor = 9
-def versionPatch = 15
-
 android {
-	compileSdkVersion 29
-	buildToolsVersion "29.0.3"
+	compileSdkVersion 30
+	buildToolsVersion "30.0.3"
 	defaultConfig {
 		applicationId "com.dimowner.audiorecorder"
 		minSdkVersion 21
-		targetSdkVersion 29
+		targetSdkVersion 30
 //		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
 //		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
 		versionCode 915
@@ -71,8 +67,8 @@ android {
 	}
 
 	compileOptions {
-		sourceCompatibility = JavaVersion.VERSION_1_8
-		targetCompatibility = JavaVersion.VERSION_1_8
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
 	}
 
 	lintOptions {
@@ -108,6 +104,7 @@ dependencies {
 
 	implementation "androidx.viewpager2:viewpager2:1.0.0"
 
+	implementation 'org:jaudiotagger:2.0.3'
 //	// Import the BoM for the Firebase platform
 //	implementation platform('com.google.firebase:firebase-bom:26.1.0')
 //	// Declare the dependencies for the Crashlytics and Analytics libraries

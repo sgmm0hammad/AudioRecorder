@@ -85,13 +85,16 @@ public interface MainContract {
 		void downloadRecord(Record record);
 	}
 
-	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
+	interface UserActionsListener extends Contract.UserActionsListener<View> {
 
 		void checkFirstRun();
 
 		void storeInPrivateDir(Context context);
 
 		void setAudioRecorder(RecorderContract.Recorder recorder);
+
+		void setCoverPath(String path);
+		String getCoverPath();
 
 		void startRecording(Context context);
 		void stopRecording(boolean deleteRecord);

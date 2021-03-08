@@ -70,6 +70,7 @@ public class Injector {
 	private SetupContract.UserActionsListener setupPresenter;
 
 	private AudioPlayerNew audioPlayer = null;
+	private AudioPlayerNew coverPlayer = null;
 
 	public Injector(Context context) {
 		this.context = context;
@@ -158,6 +159,17 @@ public class Injector {
 		return audioPlayer;
 	}
 
+	public PlayerContractNew.Player provideCoverPlayer() {
+		if (coverPlayer == null) {
+			synchronized (PlayerContractNew.Player.class) {
+				if (coverPlayer == null) {
+					coverPlayer = new AudioPlayerNew();
+				}
+			}
+		}
+		return coverPlayer;
+	}
+
 	public RecorderContract.Recorder provideAudioRecorder() {
 		switch (providePrefs().getSettingRecordingFormat()) {
 			default:
@@ -173,7 +185,7 @@ public class Injector {
 	public MainContract.UserActionsListener provideMainPresenter() {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
-					provideLocalRepository(), provideAudioPlayer(), provideAppRecorder(),
+					provideLocalRepository(), provideAudioPlayer(), provideCoverPlayer(), provideAppRecorder(),
 					provideRecordingTasksQueue(), provideLoadingTasksQueue(), provideProcessingTasksQueue(),
 					provideImportTasksQueue(), provideSettingsMapper());
 		}

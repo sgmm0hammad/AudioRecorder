@@ -58,7 +58,7 @@ class RecordingWaveformView @JvmOverloads constructor(
 	lateinit var drawLinesArray: FloatArray
 	private var totalRecordingSize: Int = 0
 
-	private var showTimeline: Boolean = true
+	private var showTimeline: Boolean = false
 
 	private var durationMills: Long = 0
 	private var durationPx: Double = 0.0

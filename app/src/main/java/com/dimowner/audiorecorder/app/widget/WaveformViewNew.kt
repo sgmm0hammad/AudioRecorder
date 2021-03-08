@@ -67,7 +67,7 @@ class WaveformViewNew @JvmOverloads constructor(
 	private var waveformData: IntArray = IntArray(0)
 	lateinit var drawLinesArray: FloatArray
 
-	private var showTimeline: Boolean = true
+	private var showTimeline: Boolean = false
 
 	/** 1 means that waveform will take whole view width. 2 mean that waveform will take double view width to draw.  */
 	private var widthScale: Double = 1.0
