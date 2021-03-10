@@ -64,6 +64,7 @@ import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
+import com.dimowner.audiorecorder.util.StringEx;
 import com.dimowner.audiorecorder.util.TimeUtils;
 import com.squareup.seismic.ShakeDetector;
 
@@ -875,7 +876,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
     public void setRecordName(final long recordId, File file, boolean showCheckbox) {
         final RecordInfo info = AudioDecoder.readRecordInfo(file);
-        AndroidUtils.showRenameDialog(this, info.getName(), showCheckbox, newName -> {
+
+        String newFileName = info.getName();
+        if (!StringEx.INSTANCE.isNullOrEmpty(presenter.getCoverPath())) {
+            String coverFileName = new File(presenter.getCoverPath()).getName();
+            coverFileName = coverFileName.substring(0, coverFileName.indexOf('.'));
+            if (!info.getName().contains(coverFileName))
+                newFileName = coverFileName + " (" + newFileName + ")";
+        }
+
+        AndroidUtils.showRenameDialog(this, newFileName, showCheckbox, newName -> {
             if (!info.getName().equalsIgnoreCase(newName)) {
                 presenter.renameRecord(recordId, newName, info.getFormat());
             }
