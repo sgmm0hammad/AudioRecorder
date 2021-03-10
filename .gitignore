@@ -6,3 +6,5 @@
 /build
 /captures
 .externalNativeBuild
+/offline_st.jks
+/offline_st.keystore.properties
