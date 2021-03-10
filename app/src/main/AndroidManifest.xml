@@ -15,6 +15,7 @@
 	<uses-feature android:name="android.hardware.location.gps" android:required="false" />
 	<uses-feature android:name="android.hardware.camera2" android:required="false" />
 	<uses-feature android:name="android.hardware.microphone" android:required="true" />
+	<uses-feature android:name="android.hardware.sensor.accelerometer" android:required="true" />
 
 	<application
 		android:allowBackup="true"

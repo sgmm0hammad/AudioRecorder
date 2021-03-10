@@ -25,9 +25,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -62,6 +65,7 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
+import com.squareup.seismic.ShakeDetector;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,6 +131,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
     private ColorMap colorMap;
     private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
 
+    private SensorManager sensorManager;
+    private ShakeDetector shakeDetector;
+
+    private MainDialog mainDialog;
+    private Handler showMainDialogHandler = new Handler(Looper.getMainLooper());
+
     private final ServiceConnection connection = new ServiceConnection() {
 
         @Override
@@ -136,6 +146,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
             decodeService.setDecodeListener(new DecodeServiceListener() {
                 @Override
                 public void onStartProcessing() {
+
                     runOnUiThread(MainActivity.this::showRecordProcessing);
                 }
 
@@ -278,6 +289,34 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
         if (presenter.getCoverPath() != null)
             btSelectSound.setImageResource(R.drawable.ic_delete);
+
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        shakeDetector = new ShakeDetector(() -> {
+            showMainDialogHandler.removeCallbacksAndMessages(null);
+            showMainDialogHandler.postDelayed(this::showMainDialog, 500);
+        });
+        shakeDetector.setSensitivity(ShakeDetector.SENSITIVITY_HARD);
+    }
+
+    private void showMainDialog() {
+        if (mainDialog != null && mainDialog.isShowing()) return;
+
+        mainDialog = new MainDialog(
+                this,
+                presenter.getInstrumentVolume(),
+                presenter.getVoiceVolume()
+        );
+        mainDialog.setCancelable(true);
+        mainDialog.setOnInstrumentVolumeChangedListener(vol -> {
+            presenter.setInstrumentVolume(vol);
+            return null;
+        });
+        mainDialog.setOnVoiceVolumeChangedListener(vol -> {
+            presenter.setVoiceVolume(vol);
+            return null;
+        });
+        mainDialog.show();
     }
 
     @Override
@@ -310,6 +349,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
     protected void onDestroy() {
         super.onDestroy();
         colorMap.removeOnThemeColorChangeListener(onThemeColorChangeListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        shakeDetector.start(sensorManager);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        shakeDetector.stop();
     }
 
     private void startRecording() {
@@ -952,6 +1003,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
         }
     }
 
+    @SuppressWarnings({"unused", "RedundantSuppression"})
     private void toast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }

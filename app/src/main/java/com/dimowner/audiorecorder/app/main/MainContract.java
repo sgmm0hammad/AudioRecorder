@@ -29,116 +29,150 @@ import java.util.List;
 
 public interface MainContract {
 
-	interface View extends Contract.View {
+    interface View extends Contract.View {
 
-		void keepScreenOn(boolean on);
-		void showRecordingStart();
-		void showRecordingStop();
-		void showRecordingPause();
-		void showRecordingResume();
-		void onRecordingProgress(long mills, int amp);
-		void startWelcomeScreen();
+        void keepScreenOn(boolean on);
 
-		void askRecordingNewName(long id, File file,  boolean showCheckbox);
+        void showRecordingStart();
 
-		void startRecordingService();
-		void stopRecordingService();
+        void showRecordingStop();
 
-		void startPlaybackService(String name);
+        void showRecordingPause();
 
-		void showPlayStart(boolean animate);
-		void showPlayPause();
-		void showPlayStop();
-		void onPlayProgress(long mills, int percent);
+        void showRecordingResume();
 
-		void showImportStart();
-		void hideImportProgress();
+        void onRecordingProgress(long mills, int amp);
 
-		void showOptionsMenu();
-		void hideOptionsMenu();
+        void startWelcomeScreen();
 
-		void showRecordProcessing();
-		void hideRecordProcessing();
+        void askRecordingNewName(long id, File file, boolean showCheckbox);
 
-		void showWaveForm(int[] waveForm, long duration, long playbackMills);
-		void waveFormToStart();
-		void showDuration(String duration);
-		void showRecordingProgress(String progress);
-		void showName(String name);
-		void showInformation(String info);
-		void decodeRecord(int id);
+        void startRecordingService();
 
-		void askDeleteRecord(String name);
+        void stopRecordingService();
 
-		void askDeleteRecordForever();
+        void startPlaybackService(String name);
 
-		void showRecordInfo(RecordInfo info);
+        void showPlayStart(boolean animate);
 
-		void updateRecordingView(IntArrayList data, long durationMills);
+        void showPlayPause();
 
-		void showRecordsLostMessage(List<Record> list);
+        void showPlayStop();
 
-		void shareRecord(Record record);
+        void onPlayProgress(long mills, int percent);
 
-		void openFile(Record record);
+        void showImportStart();
 
-		void downloadRecord(Record record);
-	}
+        void hideImportProgress();
 
-	interface UserActionsListener extends Contract.UserActionsListener<View> {
+        void showOptionsMenu();
 
-		void checkFirstRun();
+        void hideOptionsMenu();
 
-		void storeInPrivateDir(Context context);
+        void showRecordProcessing();
 
-		void setAudioRecorder(RecorderContract.Recorder recorder);
+        void hideRecordProcessing();
 
-		void setCoverPath(String path);
-		String getCoverPath();
+        void showWaveForm(int[] waveForm, long duration, long playbackMills);
 
-		void startRecording(Context context);
-		void stopRecording(boolean deleteRecord);
-		void cancelRecording();
+        void waveFormToStart();
 
-		void startPlayback();
-		void seekPlayback(long mills);
-		void stopPlayback();
+        void showDuration(String duration);
 
-		void renameRecord(long id, String name, String extension);
+        void showRecordingProgress(String progress);
 
-		void decodeRecord(long id);
+        void showName(String name);
 
-		void loadActiveRecord();
+        void showInformation(String info);
 
-		void setAskToRename(boolean value);
+        void decodeRecord(int id);
 
-		void importAudioFile(Context context, Uri uri);
+        void askDeleteRecord(String name);
 
-		void updateRecordingDir(Context context);
+        void askDeleteRecordForever();
 
-		void setStoragePrivate(Context context);
+        void showRecordInfo(RecordInfo info);
 
-		void onShareRecordClick();
+        void updateRecordingView(IntArrayList data, long durationMills);
 
-		void onRenameRecordClick();
+        void showRecordsLostMessage(List<Record> list);
 
-		void onOpenFileClick();
+        void shareRecord(Record record);
 
-		void onDownloadClick();
+        void openFile(Record record);
 
-		void onDeleteClick();
+        void downloadRecord(Record record);
+    }
 
-		//TODO: Remove this getters
-		boolean isStorePublic();
+    interface UserActionsListener extends Contract.UserActionsListener<View> {
 
-		String getActiveRecordPath();
+        void checkFirstRun();
 
-		void deleteActiveRecord(boolean forever);
+        void storeInPrivateDir(Context context);
 
-		void onRecordInfo();
+        void setAudioRecorder(RecorderContract.Recorder recorder);
 
-		void disablePlaybackProgressListener();
 
-		void enablePlaybackProgressListener();
-	}
+        void setCoverPath(String path);
+
+        String getCoverPath();
+
+        void setInstrumentVolume(int volume);
+
+        int getInstrumentVolume();
+
+        void setVoiceVolume(int volume);
+
+        int getVoiceVolume();
+
+
+        void startRecording(Context context);
+
+        void stopRecording(boolean deleteRecord);
+
+        void cancelRecording();
+
+        void startPlayback();
+
+        void seekPlayback(long mills);
+
+        void stopPlayback();
+
+        void renameRecord(long id, String name, String extension);
+
+        void decodeRecord(long id);
+
+        void loadActiveRecord();
+
+        void setAskToRename(boolean value);
+
+        void importAudioFile(Context context, Uri uri);
+
+        void updateRecordingDir(Context context);
+
+        void setStoragePrivate(Context context);
+
+        void onShareRecordClick();
+
+        void onRenameRecordClick();
+
+        void onOpenFileClick();
+
+        void onDownloadClick();
+
+        void onDeleteClick();
+
+        //TODO: Remove this getters
+        boolean isStorePublic();
+
+        String getActiveRecordPath();
+
+        void deleteActiveRecord(boolean forever);
+
+        void onRecordInfo();
+
+        void disablePlaybackProgressListener();
+
+        void enablePlaybackProgressListener();
+    }
 }

@@ -84,16 +84,19 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
     private String coverPath = null;
 
-    public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
-                         final LocalRepository localRepository,
-                         PlayerContractNew.Player audioPlayer,
-                         PlayerContractNew.Player coverPlayer,
-                         AppRecorder appRecorder,
-                         final BackgroundQueue recordingTasks,
-                         final BackgroundQueue loadingTasks,
-                         final BackgroundQueue processingTasks,
-                         final BackgroundQueue importTasks,
-                         SettingsMapper settingsMapper) {
+    public MainPresenter(
+            final Prefs prefs,
+            final FileRepository fileRepository,
+            final LocalRepository localRepository,
+            PlayerContractNew.Player audioPlayer,
+            PlayerContractNew.Player coverPlayer,
+            AppRecorder appRecorder,
+            final BackgroundQueue recordingTasks,
+            final BackgroundQueue loadingTasks,
+            final BackgroundQueue processingTasks,
+            final BackgroundQueue importTasks,
+            SettingsMapper settingsMapper
+    ) {
         this.prefs = prefs;
         this.fileRepository = fileRepository;
         this.localRepository = localRepository;
@@ -371,6 +374,26 @@ public class MainPresenter implements MainContract.UserActionsListener {
     @Override
     public String getCoverPath() {
         return coverPath;
+    }
+
+    @Override
+    public void setInstrumentVolume(int volume) {
+        coverPlayer.setVolume(volume);
+    }
+
+    @Override
+    public int getInstrumentVolume() {
+        return coverPlayer == null ? -1 : coverPlayer.getVolume();
+    }
+
+    @Override
+    public void setVoiceVolume(int volume) {
+        audioPlayer.setVolume(volume);
+    }
+
+    @Override
+    public int getVoiceVolume() {
+        return audioPlayer == null ? -1 : audioPlayer.getVolume();
     }
 
     @Override

@@ -26,197 +26,208 @@ import com.dimowner.audiorecorder.exception.PlayerInitException
 import timber.log.Timber
 import java.util.*
 
-class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
+class AudioPlayerNew : PlayerContractNew.Player, OnPreparedListener {
 
-	private val actionsListeners: MutableList<PlayerContractNew.PlayerCallback> = ArrayList()
+    private val actionsListeners: MutableList<PlayerContractNew.PlayerCallback> = ArrayList()
 
-	private var mediaPlayer: MediaPlayer = MediaPlayer()
-	private var playerState = PlayerState.STOPPED
-	private var pauseTimeMills: Long = 0
-	private var prevPosMills: Long = 0
-	private val handler = Handler()
+    private var mediaPlayer: MediaPlayer = MediaPlayer()
+    private var playerState = PlayerState.STOPPED
+    private var pauseTimeMills: Long = 0
+    private var prevPosMills: Long = 0
+    private val handler = Handler()
+    private var _volume: Int = -1
 
-	override fun addPlayerCallback(callback: PlayerContractNew.PlayerCallback) {
-		actionsListeners.add(callback)
-	}
 
-	override fun removePlayerCallback(callback: PlayerContractNew.PlayerCallback): Boolean {
-		return actionsListeners.remove(callback)
-	}
+    override fun addPlayerCallback(callback: PlayerContractNew.PlayerCallback) {
+        actionsListeners.add(callback)
+    }
 
-	private fun restartPlayer(dataSource: String) {
-		try {
-			playerState = PlayerState.STOPPED
-			mediaPlayer.reset()
-			mediaPlayer.setDataSource(dataSource)
-			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-		} catch (e: Exception) {
-			Timber.e(e)
-			onError(PlayerDataSourceException())
-		}
-	}
+    override fun removePlayerCallback(callback: PlayerContractNew.PlayerCallback): Boolean {
+        return actionsListeners.remove(callback)
+    }
 
-	override fun play(filePath: String) {
-		try {
-			if (playerState != PlayerState.PLAYING) {
-				restartPlayer(filePath)
-				try {
-					mediaPlayer.setOnPreparedListener(this)
-					mediaPlayer.prepareAsync()
-				} catch (ex: IllegalStateException) {
-					Timber.e(ex)
-					restartPlayer(filePath)
-					mediaPlayer.setOnPreparedListener(this)
-					try {
-						mediaPlayer.prepareAsync()
-					} catch (e: IllegalStateException) {
-						Timber.e(e)
-						restartPlayer(filePath)
-					}
-				}
-			}
-		} catch (e: IllegalStateException) {
-			Timber.e(e, "Player is not initialized!")
-		}
-	}
+    private fun restartPlayer(dataSource: String) {
+        try {
+            playerState = PlayerState.STOPPED
+            mediaPlayer.reset()
+            mediaPlayer.setDataSource(dataSource)
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        } catch (e: Exception) {
+            Timber.e(e)
+            onError(PlayerDataSourceException())
+        }
+    }
 
-	override fun onPrepared(mp: MediaPlayer) {
-		mediaPlayer.start()
-		mediaPlayer.seekTo(pauseTimeMills.toInt())
-		pauseTimeMills = 0
-		playerState = PlayerState.PLAYING
-		onStartPlay()
-		mediaPlayer.setOnCompletionListener {
-			stop()
-		}
-		schedulePlaybackTimeUpdate()
-	}
+    override fun play(filePath: String) {
+        try {
+            if (playerState != PlayerState.PLAYING) {
+                restartPlayer(filePath)
+                try {
+                    mediaPlayer.setOnPreparedListener(this)
+                    mediaPlayer.prepareAsync()
+                } catch (ex: IllegalStateException) {
+                    Timber.e(ex)
+                    restartPlayer(filePath)
+                    mediaPlayer.setOnPreparedListener(this)
+                    try {
+                        mediaPlayer.prepareAsync()
+                    } catch (e: IllegalStateException) {
+                        Timber.e(e)
+                        restartPlayer(filePath)
+                    }
+                }
+            }
+        } catch (e: IllegalStateException) {
+            Timber.e(e, "Player is not initialized!")
+        }
+    }
 
-	override fun seek(mills: Long) {
-		pauseTimeMills = mills
-		prevPosMills = 0
-		try {
-			if (playerState == PlayerState.PLAYING) {
-				mediaPlayer.seekTo(mills.toInt())
-				onSeek(mills)
-			}
-		} catch (e: IllegalStateException) {
-			Timber.e(e, "Player is not initialized!")
-		}
-	}
+    override fun onPrepared(mp: MediaPlayer) {
+        mediaPlayer.start()
+        mediaPlayer.seekTo(pauseTimeMills.toInt())
+        pauseTimeMills = 0
+        playerState = PlayerState.PLAYING
+        onStartPlay()
+        mediaPlayer.setOnCompletionListener {
+            stop()
+        }
+        schedulePlaybackTimeUpdate()
+    }
 
-	override fun pause() {
-		stopPlaybackTimeUpdate()
-		if (playerState == PlayerState.PLAYING) {
-			mediaPlayer.pause()
-			pauseTimeMills = mediaPlayer.currentPosition.toLong()
-			prevPosMills = 0
-			playerState = PlayerState.PAUSED
-			onPausePlay()
-		}
-	}
+    override fun seek(mills: Long) {
+        pauseTimeMills = mills
+        prevPosMills = 0
+        try {
+            if (playerState == PlayerState.PLAYING) {
+                mediaPlayer.seekTo(mills.toInt())
+                onSeek(mills)
+            }
+        } catch (e: IllegalStateException) {
+            Timber.e(e, "Player is not initialized!")
+        }
+    }
 
-	override fun unpause() {
-		if (playerState == PlayerState.PAUSED) {
-			mediaPlayer.start()
-			mediaPlayer.seekTo(pauseTimeMills.toInt())
-			pauseTimeMills = 0
-			playerState = PlayerState.PLAYING
-			onStartPlay()
-			mediaPlayer.setOnCompletionListener {
-				stop()
-			}
-			schedulePlaybackTimeUpdate()
-		}
-	}
+    override fun pause() {
+        stopPlaybackTimeUpdate()
+        if (playerState == PlayerState.PLAYING) {
+            mediaPlayer.pause()
+            pauseTimeMills = mediaPlayer.currentPosition.toLong()
+            prevPosMills = 0
+            playerState = PlayerState.PAUSED
+            onPausePlay()
+        }
+    }
 
-	override fun stop() {
-		stopPlaybackTimeUpdate()
-		mediaPlayer.stop()
-		mediaPlayer.reset()
-		mediaPlayer.setOnCompletionListener(null)
-		onStopPlay()
-		playerState = PlayerState.STOPPED
-		pauseTimeMills = 0
-		prevPosMills = 0
-	}
+    override fun unpause() {
+        if (playerState == PlayerState.PAUSED) {
+            mediaPlayer.start()
+            mediaPlayer.seekTo(pauseTimeMills.toInt())
+            pauseTimeMills = 0
+            playerState = PlayerState.PLAYING
+            onStartPlay()
+            mediaPlayer.setOnCompletionListener {
+                stop()
+            }
+            schedulePlaybackTimeUpdate()
+        }
+    }
 
-	override fun release() {
-		stop()
-		mediaPlayer.release()
-		actionsListeners.clear()
-	}
+    override fun stop() {
+        stopPlaybackTimeUpdate()
+        mediaPlayer.stop()
+        mediaPlayer.reset()
+        mediaPlayer.setOnCompletionListener(null)
+        onStopPlay()
+        playerState = PlayerState.STOPPED
+        pauseTimeMills = 0
+        prevPosMills = 0
+    }
 
-	override fun getPauseTime(): Long {
-		return pauseTimeMills
-	}
+    override fun release() {
+        stop()
+        mediaPlayer.release()
+        actionsListeners.clear()
+    }
 
-	override fun isPaused(): Boolean {
-		return playerState == PlayerState.PAUSED
-	}
+    override fun getPauseTime(): Long {
+        return pauseTimeMills
+    }
 
-	override fun isPlaying(): Boolean {
-		return playerState == PlayerState.PLAYING
-	}
+    override fun isPaused(): Boolean {
+        return playerState == PlayerState.PAUSED
+    }
 
-	private fun schedulePlaybackTimeUpdate() {
-		handler.postDelayed({
-			try {
-				if (playerState == PlayerState.PLAYING) {
-					var pos = mediaPlayer.currentPosition.toLong()
-					if (pos < prevPosMills) {
-						pos = prevPosMills
-					} else {
-						prevPosMills = pos
-					}
-					onPlayProgress(pos)
+    override fun isPlaying(): Boolean {
+        return playerState == PlayerState.PLAYING
+    }
 
-				}
-				schedulePlaybackTimeUpdate()
-			} catch (e: IllegalStateException) {
-				Timber.e(e, "Player is not initialized!")
-				onError(PlayerInitException())
-			}
-		}, AppConstants.PLAYBACK_VISUALIZATION_INTERVAL.toLong())
-	}
+    override fun setVolume(volume: Int) {
+        _volume = volume
+        mediaPlayer.setVolume(volume.toFloat() / 100f, volume.toFloat() / 100f)
+    }
 
-	private fun stopPlaybackTimeUpdate() {
-		handler.removeCallbacksAndMessages(null)
-	}
+    override fun getVolume(): Int {
+        return _volume
+    }
 
-	private fun onStartPlay() {
-		for (i in actionsListeners.indices) {
-			actionsListeners[i].onStartPlay()
-		}
-	}
+    private fun schedulePlaybackTimeUpdate() {
+        handler.postDelayed({
+            try {
+                if (playerState == PlayerState.PLAYING) {
+                    var pos = mediaPlayer.currentPosition.toLong()
+                    if (pos < prevPosMills) {
+                        pos = prevPosMills
+                    } else {
+                        prevPosMills = pos
+                    }
+                    onPlayProgress(pos)
 
-	private fun onPlayProgress(mills: Long) {
-		for (i in actionsListeners.indices) {
-			actionsListeners[i].onPlayProgress(mills)
-		}
-	}
+                }
+                schedulePlaybackTimeUpdate()
+            } catch (e: IllegalStateException) {
+                Timber.e(e, "Player is not initialized!")
+                onError(PlayerInitException())
+            }
+        }, AppConstants.PLAYBACK_VISUALIZATION_INTERVAL.toLong())
+    }
 
-	private fun onStopPlay() {
-		for (i in actionsListeners.indices.reversed()) {
-			actionsListeners[i].onStopPlay()
-		}
-	}
+    private fun stopPlaybackTimeUpdate() {
+        handler.removeCallbacksAndMessages(null)
+    }
 
-	private fun onPausePlay() {
-		for (i in actionsListeners.indices) {
-			actionsListeners[i].onPausePlay()
-		}
-	}
+    private fun onStartPlay() {
+        for (i in actionsListeners.indices) {
+            actionsListeners[i].onStartPlay()
+        }
+    }
 
-	private fun onSeek(mills: Long) {
-		for (i in actionsListeners.indices) {
-			actionsListeners[i].onSeek(mills)
-		}
-	}
+    private fun onPlayProgress(mills: Long) {
+        for (i in actionsListeners.indices) {
+            actionsListeners[i].onPlayProgress(mills)
+        }
+    }
 
-	private fun onError(throwable: AppException) {
-		for (i in actionsListeners.indices) {
-			actionsListeners[i].onError(throwable)
-		}
-	}
+    private fun onStopPlay() {
+        for (i in actionsListeners.indices.reversed()) {
+            actionsListeners[i].onStopPlay()
+        }
+    }
+
+    private fun onPausePlay() {
+        for (i in actionsListeners.indices) {
+            actionsListeners[i].onPausePlay()
+        }
+    }
+
+    private fun onSeek(mills: Long) {
+        for (i in actionsListeners.indices) {
+            actionsListeners[i].onSeek(mills)
+        }
+    }
+
+    private fun onError(throwable: AppException) {
+        for (i in actionsListeners.indices) {
+            actionsListeners[i].onError(throwable)
+        }
+    }
 }
