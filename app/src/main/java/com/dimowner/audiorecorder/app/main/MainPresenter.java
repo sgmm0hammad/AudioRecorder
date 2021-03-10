@@ -141,8 +141,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
                             prefs.getSettingSampleRate(),
                             0
                     );
-                    if (coverPath != null)
-                        coverPlayer.play(coverPath);
+                    doIfCoverNotNull(() -> coverPlayer.play(coverPath));
                 }
 
                 @Override
@@ -157,8 +156,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
                             deleteRecord = false;
                         }
                     }
-                    if (coverPath != null)
-                        coverPlayer.pause();
+                    doIfCoverNotNull(coverPlayer::pause);
                 }
 
                 @Override
@@ -167,8 +165,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
                         view.showRecordingResume();
                         view.keepScreenOn(prefs.isKeepScreenOn());
                     }
-                    if (coverPath != null)
-                        coverPlayer.unpause();
+                    doIfCoverNotNull(coverPlayer::unpause);
                 }
 
                 @Override
@@ -199,8 +196,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
                         view.hideProgress();
                         view.showRecordingStop();
                     }
-                    if (coverPath != null)
-                        coverPlayer.stop();
+                    doIfCoverNotNull(coverPlayer::stop);
                 }
 
                 @Override
@@ -224,8 +220,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
                         view.showError(ErrorParser.parseException(throwable));
                         view.showRecordingStop();
                     }
-                    if (coverPath != null)
-                        coverPlayer.stop();
+                    doIfCoverNotNull(coverPlayer::stop);
                 }
             };
         }
@@ -238,6 +233,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
                     if (record != null && view != null) {
                         view.startPlaybackService(record.getName());
                         view.showPlayStart(true);
+                        doIfCoverNotNull(() -> shouldPlayInstrument(), () -> {
+                            coverPlayer.play(getInstrumentalCoverPath());
+                        });
                     }
                 }
 
@@ -257,6 +255,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
                         audioPlayer.seek(0);
                         view.showPlayStop();
                         view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+                        doIfCoverNotNull(() -> shouldPlayInstrument(), coverPlayer::stop);
                     }
                 }
 
@@ -264,11 +263,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
                 public void onPausePlay() {
                     if (view != null) {
                         view.showPlayPause();
+                        doIfCoverNotNull(() -> shouldPlayInstrument(), coverPlayer::pause);
                     }
                 }
 
                 @Override
                 public void onSeek(long mills) {
+                    doIfCoverNotNull(() -> shouldPlayInstrument(), () -> coverPlayer.seek(mills));
                 }
 
                 @Override
@@ -276,6 +277,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
                     Timber.e(throwable);
                     if (view != null) {
                         view.showError(ErrorParser.parseException(throwable));
+                        doIfCoverNotNull(() -> shouldPlayInstrument(), coverPlayer::stop);
                     }
                 }
             };
@@ -909,4 +911,33 @@ public class MainPresenter implements MainContract.UserActionsListener {
         }
         return null;
     }
+
+    private boolean shouldPlayInstrument() {
+        if (coverPath == null) return false;
+        return new File(getInstrumentalCoverPath()).exists();
+    }
+
+    private String getInstrumentalCoverPath() {
+        String instrumental = coverPath.substring(0, coverPath.lastIndexOf('.'));
+        instrumental += " (instrumental).mp3";
+        return instrumental;
+    }
+
+    private void doIfCoverNotNull(ICoverAvailableListener callback) {
+        doIfCoverNotNull(() -> true, callback);
+    }
+
+    private void doIfCoverNotNull(IAdditionalIf additionalIf, ICoverAvailableListener callback) {
+        if (coverPath == null || !additionalIf.isTrue()) return;
+        callback.itIsAvailable();
+    }
+
+    interface ICoverAvailableListener {
+        void itIsAvailable();
+    }
+
+    interface IAdditionalIf {
+        boolean isTrue();
+    }
+
 }

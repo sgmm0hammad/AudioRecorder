@@ -275,6 +275,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
             recreate();
         };
         colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
+
+        if (presenter.getCoverPath() != null)
+            btSelectSound.setImageResource(R.drawable.ic_delete);
     }
 
     @Override
@@ -314,6 +317,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
         // if (presenter.getCoverPath() == null) return;
     }
 
+    private void startPlayback() {
+        presenter.startPlayback();
+    }
+
     @Override
     public void onClick(View view) {
         int id = view.getId();
@@ -321,10 +328,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
             //This method Starts or Pause playback.
             if (FileUtil.isFileInExternalStorage(getApplicationContext(), presenter.getActiveRecordPath())) {
                 if (checkStoragePermissionPlayback()) {
-                    presenter.startPlayback();
+                    startPlayback();
                 }
             } else {
-                presenter.startPlayback();
+                startPlayback();
             }
         } else if (id == R.id.btn_record) {
             if (checkRecordPermission2()) {
@@ -936,7 +943,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
         } else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-            presenter.startPlayback();
+            startPlayback();
         } else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
                 && (grantResults[0] == PackageManager.PERMISSION_DENIED
                 || grantResults[1] == PackageManager.PERMISSION_DENIED)) {
